@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "d:\\Training\\C# .NET Training\\Week 4\\TaskMgmt\\TaskMgmt.csproj": {}
+    "D:\\Training\\C# .NET Training\\Project\\TaskMgmt\\TaskMgmt.csproj": {}
   },
   "projects": {
-    "d:\\Training\\C# .NET Training\\Week 4\\TaskMgmt\\TaskMgmt.csproj": {
+    "D:\\Training\\C# .NET Training\\Project\\TaskMgmt\\TaskMgmt.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\Training\\C# .NET Training\\Week 4\\TaskMgmt\\TaskMgmt.csproj",
+        "projectUniqueName": "D:\\Training\\C# .NET Training\\Project\\TaskMgmt\\TaskMgmt.csproj",
         "projectName": "TaskMgmt",
-        "projectPath": "d:\\Training\\C# .NET Training\\Week 4\\TaskMgmt\\TaskMgmt.csproj",
+        "projectPath": "D:\\Training\\C# .NET Training\\Project\\TaskMgmt\\TaskMgmt.csproj",
         "packagesPath": "C:\\Users\\Samuel\\.nuget\\packages\\",
-        "outputPath": "d:\\Training\\C# .NET Training\\Week 4\\TaskMgmt\\obj\\",
+        "outputPath": "D:\\Training\\C# .NET Training\\Project\\TaskMgmt\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Samuel\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -39,6 +39,28 @@
       "frameworks": {
         "net7.0": {
           "targetAlias": "net7.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[7.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[7.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.10, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
