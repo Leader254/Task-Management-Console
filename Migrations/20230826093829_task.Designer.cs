@@ -11,8 +11,8 @@ using TaskMgmt.Context;
 namespace TaskMgmt.Migrations
 {
     [DbContext(typeof(TaskContext))]
-    [Migration("20230826085551_initial")]
-    partial class initial
+    [Migration("20230826093829_task")]
+    partial class task
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,28 +26,28 @@ namespace TaskMgmt.Migrations
 
             modelBuilder.Entity("TaskMgmt.Models.Project", b =>
                 {
-                    b.Property<int>("ProjectId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProjectId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("ProjectId");
+                    b.HasKey("Id");
 
                     b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("TaskMgmt.Models.Tasks", b =>
                 {
-                    b.Property<int>("TaskId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TaskId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AssignedUserId")
                         .HasColumnType("int");
@@ -66,9 +66,10 @@ namespace TaskMgmt.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("TaskId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("AssignedUserId");
+                    b.HasIndex("AssignedUserId")
+                        .IsUnique();
 
                     b.HasIndex("ProjectId");
 
@@ -77,11 +78,11 @@ namespace TaskMgmt.Migrations
 
             modelBuilder.Entity("TaskMgmt.Models.User", b =>
                 {
-                    b.Property<int>("UserId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
@@ -94,7 +95,7 @@ namespace TaskMgmt.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("UserId");
+                    b.HasKey("Id");
 
                     b.ToTable("Users");
                 });
@@ -102,8 +103,8 @@ namespace TaskMgmt.Migrations
             modelBuilder.Entity("TaskMgmt.Models.Tasks", b =>
                 {
                     b.HasOne("TaskMgmt.Models.User", "AssignedUser")
-                        .WithMany()
-                        .HasForeignKey("AssignedUserId")
+                        .WithOne("Task")
+                        .HasForeignKey("TaskMgmt.Models.Tasks", "AssignedUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -121,6 +122,12 @@ namespace TaskMgmt.Migrations
             modelBuilder.Entity("TaskMgmt.Models.Project", b =>
                 {
                     b.Navigation("Tasks");
+                });
+
+            modelBuilder.Entity("TaskMgmt.Models.User", b =>
+                {
+                    b.Navigation("Task")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
