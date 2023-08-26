@@ -17,6 +17,7 @@ namespace TaskMgmt.Auth
     }
     public class Authentication
     {
+        private static int loggedInUser;
         // show options for login or register
         public void ShowOptions()
         {
@@ -76,10 +77,10 @@ namespace TaskMgmt.Auth
                 {
                     AdminMenu();
                 }
-                else
-                {
-                    UserMenu();
-                }
+                // else
+                // {
+                //     UserMenu();
+                // }
             }
         }
         // Register method
@@ -110,10 +111,10 @@ namespace TaskMgmt.Auth
                     {
                         AdminMenu(); // Display admin privileges
                     }
-                    else
-                    {
-                        UserMenu(); // Display regular user privileges
-                    }
+                    // else
+                    // {
+                    //     UserMenu(); // Display regular user privileges
+                    // }
                     return true;
                 }
                 else
@@ -130,11 +131,12 @@ namespace TaskMgmt.Auth
             Console.WriteLine("2. Update Project");
             Console.WriteLine("3. Delete Project");
             Console.WriteLine("4. Create Tasks");
-            Console.WriteLine("5. View all tasks by status");
-            Console.WriteLine("6. Update task");
-            Console.WriteLine("7. Delete task");
-            Console.WriteLine("8. Delete user");
-            Console.WriteLine("9. Logout");
+            Console.WriteLine("5. View all tasks");
+            Console.WriteLine("6. View all tasks by status");
+            Console.WriteLine("7. Update task");
+            Console.WriteLine("8. Delete task");
+            Console.WriteLine("9. Delete user");
+            Console.WriteLine("10. Logout");
             Console.WriteLine("Enter your choice: ");
             int choice = Convert.ToInt32(Console.ReadLine());
 
@@ -154,15 +156,18 @@ namespace TaskMgmt.Auth
                     projectsCRUD.CreateTask();
                     break;
                 case 5:
-                    projectsCRUD.ViewAllTasksByStatus();
+                    projectsCRUD.ViewAllTasks();
                     break;
                 case 6:
-                    projectsCRUD.UpdateTask();
+                    projectsCRUD.ViewAllTasksByStatus();
                     break;
                 case 7:
-                    projectsCRUD.DeleteTask();
+                    projectsCRUD.UpdateTask();
                     break;
                 case 8:
+                    projectsCRUD.DeleteTask();
+                    break;
+                case 9:
                     projectsCRUD.DeleteUser();
                     break;
                 // case 8:
@@ -176,44 +181,26 @@ namespace TaskMgmt.Auth
         }
 
         // user menu
-        public static void UserMenu()
-        {
-            Console.WriteLine("1. Create task");
-            Console.WriteLine("2. View all tasks");
-            Console.WriteLine("3. View all tasks by status");
-            Console.WriteLine("4. View all tasks by project");
-            Console.WriteLine("5. View all tasks by project and status");
-            Console.WriteLine("6. Update task");
-            Console.WriteLine("7. Logout");
-            Console.WriteLine("Enter your choice: ");
-            int choice = Convert.ToInt32(Console.ReadLine());
-            // switch (choice)
-            // {
-            //     case 1:
-            //         CreateTask();
-            //         break;
-            //     case 2:
-            //         ViewAllTasks();
-            //         break;
-            //     case 3:
-            //         ViewAllTasksByStatus();
-            //         break;
-            //     case 4:
-            //         ViewAllTasksByProject();
-            //         break;
-            //     case 5:
-            //         ViewAllTasksByProjectAndStatus();
-            //         break;
-            //     case 6:
-            //         UpdateTask();
-            //         break;
-            //     case 7:
-            //         Logout();
-            //         break;
-            //     default:
-            //         Console.WriteLine("Invalid choice");
-            //         break;
-            // }
-        }
+        // public static void UserMenu()
+        // {
+        //     Console.WriteLine("1. View task assigned to you");
+        //     Console.WriteLine("2. Update task status");
+        //     Console.WriteLine("Enter your choice: ");
+        //     int choice = Convert.ToInt32(Console.ReadLine());
+
+        //     UserOptions userOptions = new UserOptions();
+        //     switch (choice)
+        //     {
+        //         case 1:
+        //             userOptions.ViewTaskAssignedToYou();
+        //             break;
+        //         case 2:
+        //             userOptions.UpdateTaskStatus();
+        //             break;
+        //         default:
+        //             Console.WriteLine("Invalid choice");
+        //             break;
+        //     }
+        // }
     }
 }
