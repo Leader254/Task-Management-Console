@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using TaskMgmt.Context;
 using TaskMgmt.Models;
+using TaskMgmt.Controllers;
 
 namespace TaskMgmt.Auth
 {
@@ -70,11 +71,15 @@ namespace TaskMgmt.Auth
             bool isLogin = Login(username, password);
             if (isLogin)
             {
-                Console.WriteLine("Login successful");
-            }
-            else
-            {
-                Console.WriteLine("Login failed, uer not found!!");
+                // check role
+                if (selectedRole == "Admin")
+                {
+                    AdminMenu();
+                }
+                else
+                {
+                    UserMenu();
+                }
             }
         }
         // Register method
@@ -132,36 +137,41 @@ namespace TaskMgmt.Auth
             Console.WriteLine("9. Logout");
             Console.WriteLine("Enter your choice: ");
             int choice = Convert.ToInt32(Console.ReadLine());
-            // switch (choice)
-            // {
-            //     case 1:
-            //         CreateProject();
-            //         break;
-            //     case 2:
-            //         UpdateProject();
-            //         break;
-            //     case 3:
-            //         DeleteProject();
-            //         break;
-            //     case 4:
-            //         ViewAllTasksByStatus();
-            //         break;
-            //     case 5:
-            //         UpdateTask();
-            //         break;
-            //     case 6:
-            //         DeleteTask();
-            //         break;
-            //     case 7:
-            //         DeleteUser();
-            //         break;
-            //     case 8:
-            //         Logout();
-            //         break;
-            //     default:
-            //         Console.WriteLine("Invalid choice");
-            //         break;
-            // }
+
+            ProjectsCRUD projectsCRUD = new ProjectsCRUD();
+            switch (choice)
+            {
+                case 1:
+                    projectsCRUD.CreateProject();
+                    break;
+                case 2:
+                    projectsCRUD.UpdateProject();
+                    break;
+                case 3:
+                    projectsCRUD.DeleteProject();
+                    break;
+                case 4:
+                    projectsCRUD.CreateTask();
+                    break;
+                case 5:
+                    projectsCRUD.ViewAllTasksByStatus();
+                    break;
+                case 6:
+                    projectsCRUD.UpdateTask();
+                    break;
+                case 7:
+                    projectsCRUD.DeleteTask();
+                    break;
+                case 8:
+                    projectsCRUD.DeleteUser();
+                    break;
+                // case 8:
+                //     Logout();
+                //     break;
+                default:
+                    Console.WriteLine("Invalid choice");
+                    break;
+            }
 
         }
 
