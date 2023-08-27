@@ -187,16 +187,14 @@ namespace TaskMgmt.Controllers
                         Console.WriteLine($"Role: {user.Role}");
                         if (user.Task != null)
                         {
-                            Console.WriteLine($"Task: {user.Task.Title}");
+                            Console.WriteLine($"Task: {user.Task.Title}, Status: {user.Task.Status}");
                         }
                         Console.ResetColor();
                     }
                     Console.WriteLine("Enter the user id to assign the task:");
                     int assignedUserId = Convert.ToInt32(Console.ReadLine());
-
-                    // Check if the user is already assigned a task
                     assignedUser = db.Users.Include(u => u.Task).FirstOrDefault(u => u.Id == assignedUserId);
-                    if (assignedUser != null && assignedUser.Task != null)
+                    if (assignedUser != null && assignedUser.Task != null && assignedUser.Task.Status != Status.Completed)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("User already has a task assigned! Choose another user.");
@@ -213,8 +211,12 @@ namespace TaskMgmt.Controllers
                     }
                     else
                     {
-                        // if the user is not assigned a task, assign the task to the user
-                        assignedUser = db.Users.Find(assignedUserId);
+                        // if the user task status is completed, assign the task to the user
+                        if (assignedUser != null && assignedUser.Task != null && assignedUser.Task.Status == Status.Completed)
+                        {
+                            assignedUser.Task = null;
+                        }
+
                     }
                 }
 
@@ -232,7 +234,6 @@ namespace TaskMgmt.Controllers
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine(message);
                 Console.ResetColor();
-                Console.ReadKey();
             }
         }
 

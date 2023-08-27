@@ -45,7 +45,7 @@ namespace TaskMgmt.Auth
             string username = Console.ReadLine();
             Console.Write("Enter password: ");
             string password = Console.ReadLine();
-            Console.Write("Enter role: ");
+            Console.WriteLine("Enter role: ");
 
             foreach (var roleOption in Enum.GetValues(typeof(Role)))
             {
@@ -175,10 +175,10 @@ namespace TaskMgmt.Auth
             switch (choice)
             {
                 case 1:
-                    userOptions.ViewTaskAssignedToYou();
+                    userOptions.ViewTaskAssignedToYou(int.Parse(loggedInUser.ToString()));
                     break;
                 case 2:
-                    userOptions.UpdateTaskStatus();
+                    userOptions.UpdateTaskStatus(int.Parse(loggedInUser.ToString()));
                     break;
                 default:
                     Console.WriteLine("Invalid choice");
