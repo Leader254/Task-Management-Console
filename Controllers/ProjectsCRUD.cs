@@ -7,7 +7,6 @@ namespace TaskMgmt.Controllers
     public class ProjectsCRUD
     {
         // Create Project - Done
-        // check for nulls and empty strings
         public void CreateProject()
         {
             using (var db = new TaskContext())
@@ -393,7 +392,7 @@ namespace TaskMgmt.Controllers
             }
         }
 
-        // Delete User
+        // Delete User - Done
         public void DeleteUser()
         {
             using (var db = new TaskContext())
