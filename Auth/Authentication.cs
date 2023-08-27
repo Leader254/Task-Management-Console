@@ -59,12 +59,12 @@ namespace TaskMgmt.Auth
         // input fields for login
         public void LoginInput()
         {
-            Console.WriteLine("Choose your role: ");
-            foreach (var role in Enum.GetValues(typeof(Role)))
-            {
-                Console.WriteLine($"{(int)role}. {role}");
-            }
-            string selectedRole = Console.ReadLine();
+            // Console.WriteLine("Choose your role: ");
+            // foreach (var role in Enum.GetValues(typeof(Role)))
+            // {
+            //     Console.WriteLine($"{(int)role}. {role}");
+            // }
+            // string selectedRole = Console.ReadLine();
             Console.WriteLine("Enter username: ");
             string username = Console.ReadLine();
             Console.WriteLine("Enter password: ");
@@ -73,10 +73,30 @@ namespace TaskMgmt.Auth
             if (isLogin)
             {
                 // check role
-                if (selectedRole == "Admin")
+                // if input details are correct, then display menu by checking if the details are of admin or user from the database
+                using (var db = new TaskContext())
                 {
-                    AdminMenu();
+                    var user = db.Users.FirstOrDefault(u => u.Username == username && u.Password == password);
+                    if (user != null)
+                    {
+                        if (user.Role == Role.Admin)
+                        {
+                            AdminMenu(); // Display admin privileges
+                        }
+                        else
+                        {
+                            UserMenu(); // Display regular user privileges
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid username or password");
+                    }
                 }
+                // if (selectedRole == "Admin")
+                // {
+                //     AdminMenu();
+                // }
                 // else
                 // {
                 //     UserMenu();
@@ -181,26 +201,26 @@ namespace TaskMgmt.Auth
         }
 
         // user menu
-        // public static void UserMenu()
-        // {
-        //     Console.WriteLine("1. View task assigned to you");
-        //     Console.WriteLine("2. Update task status");
-        //     Console.WriteLine("Enter your choice: ");
-        //     int choice = Convert.ToInt32(Console.ReadLine());
+        public static void UserMenu()
+        {
+            Console.WriteLine("1. View task assigned to you");
+            Console.WriteLine("2. Update task status");
+            Console.WriteLine("Enter your choice: ");
+            int choice = Convert.ToInt32(Console.ReadLine());
 
-        //     UserOptions userOptions = new UserOptions();
-        //     switch (choice)
-        //     {
-        //         case 1:
-        //             userOptions.ViewTaskAssignedToYou();
-        //             break;
-        //         case 2:
-        //             userOptions.UpdateTaskStatus();
-        //             break;
-        //         default:
-        //             Console.WriteLine("Invalid choice");
-        //             break;
-        //     }
-        // }
+            UserOptions userOptions = new UserOptions();
+            switch (choice)
+            {
+                case 1:
+                    userOptions.ViewTaskAssignedToYou();
+                    break;
+                case 2:
+                    userOptions.UpdateTaskStatus();
+                    break;
+                default:
+                    Console.WriteLine("Invalid choice");
+                    break;
+            }
+        }
     }
 }
