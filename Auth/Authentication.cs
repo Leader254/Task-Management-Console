@@ -23,7 +23,7 @@ namespace TaskMgmt.Auth
         {
             Console.WriteLine("1. Login");
             Console.WriteLine("2. Register");
-            Console.WriteLine("Enter your choice: ");
+            Console.Write("Enter your choice: ");
             int choice = Convert.ToInt32(Console.ReadLine());
             if (choice == (int)LoginOrRegister.Login)
             {
@@ -41,11 +41,11 @@ namespace TaskMgmt.Auth
         // input fields for register
         public void RegisterInput()
         {
-            Console.WriteLine("Enter username: ");
+            Console.Write("Enter username: ");
             string username = Console.ReadLine();
-            Console.WriteLine("Enter password: ");
+            Console.Write("Enter password: ");
             string password = Console.ReadLine();
-            Console.WriteLine("Enter role: ");
+            Console.Write("Enter role: ");
 
             foreach (var roleOption in Enum.GetValues(typeof(Role)))
             {
@@ -59,49 +59,12 @@ namespace TaskMgmt.Auth
         // input fields for login
         public void LoginInput()
         {
-            // Console.WriteLine("Choose your role: ");
-            // foreach (var role in Enum.GetValues(typeof(Role)))
-            // {
-            //     Console.WriteLine($"{(int)role}. {role}");
-            // }
-            // string selectedRole = Console.ReadLine();
-            Console.WriteLine("Enter username: ");
+            Console.Write("Enter username: ");
             string username = Console.ReadLine();
-            Console.WriteLine("Enter password: ");
+            Console.Write("Enter password: ");
             string password = Console.ReadLine();
             bool isLogin = Login(username, password);
-            if (isLogin)
-            {
-                // check role
-                // if input details are correct, then display menu by checking if the details are of admin or user from the database
-                using (var db = new TaskContext())
-                {
-                    var user = db.Users.FirstOrDefault(u => u.Username == username && u.Password == password);
-                    if (user != null)
-                    {
-                        if (user.Role == Role.Admin)
-                        {
-                            AdminMenu(); // Display admin privileges
-                        }
-                        else
-                        {
-                            UserMenu(); // Display regular user privileges
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid username or password");
-                    }
-                }
-                // if (selectedRole == "Admin")
-                // {
-                //     AdminMenu();
-                // }
-                // else
-                // {
-                //     UserMenu();
-                // }
-            }
+
         }
         // Register method
         public static void Register(string username, string password, string roleName)
@@ -127,18 +90,26 @@ namespace TaskMgmt.Auth
                 var user = db.Users.FirstOrDefault(u => u.Username == username && u.Password == password);
                 if (user != null)
                 {
+                    loggedInUser = user.Id;
                     if (user.Role == Role.Admin)
                     {
-                        AdminMenu(); // Display admin privileges
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"Welcome Back {user.Username}!!");
+                        Console.ResetColor();
+                        AdminMenu();
                     }
-                    // else
-                    // {
-                    //     UserMenu(); // Display regular user privileges
-                    // }
+                    else if (user.Role == Role.User)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine($"Welcome Back {user.Username}!!");
+                        Console.ResetColor();
+                        UserMenu();
+                    }
                     return true;
                 }
                 else
                 {
+                    Console.WriteLine("Invalid username or password");
                     return false;
                 }
             }
@@ -152,12 +123,10 @@ namespace TaskMgmt.Auth
             Console.WriteLine("3. Delete Project");
             Console.WriteLine("4. Create Tasks");
             Console.WriteLine("5. View all tasks");
-            Console.WriteLine("6. View all tasks by status");
-            Console.WriteLine("7. Update task");
-            Console.WriteLine("8. Delete task");
-            Console.WriteLine("9. Delete user");
-            Console.WriteLine("10. Logout");
-            Console.WriteLine("Enter your choice: ");
+            Console.WriteLine("6. Update task");
+            Console.WriteLine("7. Delete task");
+            Console.WriteLine("8. Delete user");
+            Console.Write("Enter your choice: ");
             int choice = Convert.ToInt32(Console.ReadLine());
 
             ProjectsCRUD projectsCRUD = new ProjectsCRUD();
@@ -179,20 +148,14 @@ namespace TaskMgmt.Auth
                     projectsCRUD.ViewAllTasks();
                     break;
                 case 6:
-                    projectsCRUD.ViewAllTasksByStatus();
-                    break;
-                case 7:
                     projectsCRUD.UpdateTask();
                     break;
-                case 8:
+                case 7:
                     projectsCRUD.DeleteTask();
                     break;
-                case 9:
+                case 8:
                     projectsCRUD.DeleteUser();
                     break;
-                // case 8:
-                //     Logout();
-                //     break;
                 default:
                     Console.WriteLine("Invalid choice");
                     break;
@@ -205,7 +168,7 @@ namespace TaskMgmt.Auth
         {
             Console.WriteLine("1. View task assigned to you");
             Console.WriteLine("2. Update task status");
-            Console.WriteLine("Enter your choice: ");
+            Console.Write("Enter your choice: ");
             int choice = Convert.ToInt32(Console.ReadLine());
 
             UserOptions userOptions = new UserOptions();
