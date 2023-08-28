@@ -1,56 +1,59 @@
 using Microsoft.EntityFrameworkCore;
 using TaskMgmt.Context;
 using TaskMgmt.Models;
+using TaskMgmt.Auth;
+using TaskMgmt.Utils;
 
-namespace TaskMgmt.Controllers{
-    public class ProjectsCRUD
+namespace TaskMgmt.Controllers
 {
-    // Create Project - Done
-    public void CreateProject()
+    public class ProjectsCRUD
     {
-        using (var db = new TaskContext())
+        // Create Project - Done - Validation
+        public void CreateProject()
         {
-            string name = "";
-            while (string.IsNullOrEmpty(name))
+            using (var db = new TaskContext())
             {
-                Console.WriteLine("Enter the name of the project:");
-                name = Console.ReadLine().Trim(); // Trim to remove leading and trailing spaces
-                if (string.IsNullOrEmpty(name))
+                string name = "";
+                while (string.IsNullOrEmpty(name))
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Name cannot be empty!");
-                    Console.ResetColor();
+                    Console.WriteLine("Enter the name of the project:");
+                    name = Console.ReadLine().Trim(); // Trim to remove leading and trailing spaces
+                    if (string.IsNullOrEmpty(name))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Name cannot be empty!");
+                        Console.ResetColor();
+                    }
                 }
-            }
 
-            string description = "";
-            while (string.IsNullOrEmpty(description))
-            {
-                Console.WriteLine("Enter the description of the project:");
-                description = Console.ReadLine().Trim(); // Trim to remove leading and trailing spaces
-                if (string.IsNullOrEmpty(description))
+                string description = "";
+                while (string.IsNullOrEmpty(description))
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Description cannot be empty!");
-                    Console.ResetColor();
+                    Console.WriteLine("Enter the description of the project:");
+                    description = Console.ReadLine().Trim(); // Trim to remove leading and trailing spaces
+                    if (string.IsNullOrEmpty(description))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Description cannot be empty!");
+                        Console.ResetColor();
+                    }
                 }
-            }
 
-            Project project = new Project
-            {
-                Name = name,
-                Description = description
-            };
-            db.Projects.Add(project);
-            db.SaveChanges();
-            const string message = "Project created successfully!";
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine(message);
-            Console.ResetColor();
+                Project project = new Project
+                {
+                    Name = name,
+                    Description = description
+                };
+                db.Projects.Add(project);
+                db.SaveChanges();
+                const string message = "Project created successfully!";
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine(message);
+                Console.ResetColor();
+            }
         }
-    }
 
-        // Update Project - Done
+        // Update Project - Done - Validation
         public void UpdateProject()
         {
             using (var db = new TaskContext())
@@ -66,105 +69,109 @@ namespace TaskMgmt.Controllers{
                     Console.ResetColor();
                 }
                 Console.WriteLine("Enter the id of the project you want to update:");
-                int id = Convert.ToInt32(Console.ReadLine());
-                try
+                // validate the input id to confirm if the input is valid and if the input is valid, check if the project is found and if the project is not found, show a message that project not found
+                if (!int.TryParse(Console.ReadLine(), out int id))
                 {
-                    var project = db.Projects.Find(id);
-                    Console.Write($"Old name: =={project.Name}==, Please enter the new name of the project:");
-                    string name = Console.ReadLine();
-                    if (string.IsNullOrEmpty(name))
-                    {
-                        // leave the name as it is
-                        name = project.Name;
-                    }
-                    Console.Write($"Old description: =={project.Description}==, Please enter the new description of the project:");
-                    string description = Console.ReadLine();
-                    if (string.IsNullOrEmpty(description))
-                    {
-                        // leave the description as it is
-                        description = project.Description;
-                    }
-                    project.Name = name;
-                    project.Description = description;
-                    db.SaveChanges();
-
-                    string message = "Project updated successfully!";
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine(message);
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Invalid input. Please enter a valid project id.");
                     Console.ResetColor();
-
+                    // call the method to update project again
+                    UpdateProject();
                 }
-                catch (Exception)
+                Project projectToUpdate = projects.FirstOrDefault(p => p.Id == id);
+                if (projectToUpdate == null)
                 {
-                    throw;
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Project not found!");
+                    Console.ResetColor();
+                    // call the method to update project again
+                    UpdateProject();
+                }
+                Console.Write($"Old name: =={projectToUpdate.Name}==, Please enter the new name of the project:");
+                string name = Console.ReadLine();
+                if (string.IsNullOrEmpty(name))
+                {
+                    // leave the name as it is
+                    name = projectToUpdate.Name;
+                }
+                Console.Write($"Old description: =={projectToUpdate.Description}==, Please enter the new description of the project:");
+                string description = Console.ReadLine();
+                if (string.IsNullOrEmpty(description))
+                {
+                    // leave the description as it is
+                    description = projectToUpdate.Description;
+                }
+                projectToUpdate.Name = name;
+                projectToUpdate.Description = description;
+                db.SaveChanges();
+
+            }
+        }
+        // Delete Project - Done - Validation
+        public void DeleteProject()
+        {
+            using (var db = new TaskContext())
+            {
+                List<Project> projects = db.Projects.Include(p => p.Tasks).ToList();
+                foreach (Project project in projects)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"Id: {project.Id}");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"Name: {project.Name}");
+                    Console.WriteLine($"Description: {project.Description}");
+                    Console.WriteLine($"Tasks: {project.Tasks.Count}, Status: {project.Tasks.FirstOrDefault()?.Status}");
+                    Console.ResetColor();
+                }
+
+                Console.WriteLine("Enter the id of the project you want to delete:");
+                if (!int.TryParse(Console.ReadLine(), out int id))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Invalid input. Please enter a valid project id.");
+                    Console.ResetColor();
+                    // call the method to delete project again
+                    DeleteProject();
+                }
+
+                Project projectToDelete = projects.FirstOrDefault(p => p.Id == id);
+
+                if (projectToDelete != null)
+                {
+                    if (projectToDelete.Tasks.Count == 0)
+                    {
+                        db.Projects.Remove(projectToDelete);
+                        db.SaveChanges();
+                        const string message = "Project deleted successfully!";
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine(message);
+                        Console.ResetColor();
+                        return;
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Project cannot be deleted as it has tasks assigned to it!");
+                        Console.ResetColor();
+                        // call the admin menu again
+                        Authentication.AdminMenu();
+                    }
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Project not found!");
+                    Console.ResetColor();
+                    // call the method to delete project again
+                    DeleteProject();
                 }
             }
         }
-// Delete Project - Done
-public void DeleteProject()
-{
-    using (var db = new TaskContext())
-    {
-        List<Project> projects = db.Projects.Include(p => p.Tasks).ToList();
-        foreach (Project project in projects)
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"Id: {project.Id}");
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Name: {project.Name}");
-            Console.WriteLine($"Description: {project.Description}");
-            Console.WriteLine($"Tasks: {project.Tasks.Count}, Status: {project.Tasks.FirstOrDefault()?.Status}");
-            Console.ResetColor();
-        }
-
-        Console.WriteLine("Enter the id of the project you want to delete:");
-        if (!int.TryParse(Console.ReadLine(), out int id))
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Invalid input. Please enter a valid project id.");
-            Console.ResetColor();
-            return;
-        }
-
-        Project projectToDelete = projects.FirstOrDefault(p => p.Id == id);
-
-        if (projectToDelete != null)
-        {
-            if (projectToDelete.Tasks.Count == 0)
-            {
-                db.Projects.Remove(projectToDelete);
-                db.SaveChanges();
-                const string message = "Project deleted successfully!";
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine(message);
-                Console.ResetColor();
-                Console.ReadKey();
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Project cannot be deleted as it has tasks assigned to it!");
-                Console.ResetColor();
-                Console.ReadKey();
-            }
-        }
-        else
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Project not found!");
-            Console.ResetColor();
-            Console.ReadKey();
-        }
-    }
-}
-
-
-        // Create Task
+        // Create Task - Done - Validation
         public void CreateTask()
         {
             using (var db = new TaskContext())
             {
-                // get all the projects from the database to choose under which project the task should be created
                 List<Project> projects = db.Projects.Include(p => p.Tasks).ToList();
                 foreach (Project project in projects)
                 {
@@ -179,17 +186,24 @@ public void DeleteProject()
                     }
                     Console.ResetColor();
                 }
-                Console.WriteLine("Enter the project id under which you want to create the task:");
-                int projectId = Convert.ToInt32(Console.ReadLine());
-                Console.WriteLine("Enter the title of the task:");
-                string title = Console.ReadLine();
-                Console.WriteLine("Enter the description of the task:");
-                string description = Console.ReadLine();
+
+                int projectId = ValidationUtils.ReadValidInt("Enter the project id under which you want to create the task: ", "Invalid input. Please enter a valid project id.");
+
+                Project projectToAssign = db.Projects.Include(p => p.Tasks).FirstOrDefault(p => p.Id == projectId);
+                if (projectToAssign == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Project not found!");
+                    Console.ResetColor();
+                    CreateTask();
+                }
+
+                string title = ValidationUtils.ReadNonEmptyString("Enter the title of the task: ", "Title cannot be empty.");
+                string description = ValidationUtils.ReadNonEmptyString("Enter the description of the task: ", "Description cannot be empty.");
 
                 User assignedUser = null;
                 while (assignedUser == null)
                 {
-                    // get all the users from the database to choose which user to assign the task with their status if they have a task assigned or not
                     List<User> users = db.Users.Include(u => u.Task).ToList();
                     foreach (User user in users)
                     {
@@ -204,9 +218,10 @@ public void DeleteProject()
                         }
                         Console.ResetColor();
                     }
-                    Console.WriteLine("Enter the user id to assign the task:");
-                    int assignedUserId = Convert.ToInt32(Console.ReadLine());
+                    int assignedUserId = ValidationUtils.ReadValidInt("Enter the user id to assign the task: ", "Invalid input. Please enter a valid user id.");
+
                     assignedUser = db.Users.Include(u => u.Task).FirstOrDefault(u => u.Id == assignedUserId);
+
                     if (assignedUser != null && assignedUser.Task != null && assignedUser.Task.Status != Status.Completed)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -214,7 +229,6 @@ public void DeleteProject()
                         Console.ResetColor();
                         assignedUser = null; // Reset assignedUser to null to loop again
                     }
-                    // if the user has a role of admin, show a message that admin cannot be assigned a task
                     else if (assignedUser != null && assignedUser.Role == Role.Admin)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -224,12 +238,10 @@ public void DeleteProject()
                     }
                     else
                     {
-                        // if the user task status is completed, assign the task to the user
                         if (assignedUser != null && assignedUser.Task != null && assignedUser.Task.Status == Status.Completed)
                         {
                             assignedUser.Task = null;
                         }
-
                     }
                 }
 
@@ -250,7 +262,7 @@ public void DeleteProject()
             }
         }
 
-        // View all tasks - Done
+        // View all tasks - Done - Validation
         public void ViewAllTasks()
         {
             using (var db = new TaskContext())
@@ -276,16 +288,17 @@ public void DeleteProject()
                 }
                 else
                 {
-                    return;
+                    Console.WriteLine("Invalid choice");
+                    // call the admin menu again
+                    Authentication.AdminMenu();
                 }
             }
         }
-        // Update Task
+        // Update Task - Done - Validation
         public void UpdateTask()
         {
             using (var db = new TaskContext())
             {
-                // View all task and allow user to choose which task to update
                 List<Tasks> tasks = db.Tasks.Include(p => p.AssignedUser).ToList();
                 foreach (Tasks task in tasks)
                 {
@@ -297,136 +310,28 @@ public void DeleteProject()
                     Console.WriteLine($"Status: {task.Status}");
                     Console.ResetColor();
                 }
-                Console.WriteLine("Enter the id of the task you want to update:");
-                int id = Convert.ToInt32(Console.ReadLine());
-                try
-                {
-                    // if the status is completed or in progress, do not allow the user to update the task
-                    var task = db.Tasks.Find(id);
-                    if (task.Status == Status.Completed || task.Status == Status.InProgress)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Task cannot be updated as it is in progress or completed!");
-                        Console.ResetColor();
-                        Console.ReadKey();
-                        return;
-                    }
-                    Console.Write($"Old title: =={task.Title}==, Please enter the new title of the task:");
-                    string title = Console.ReadLine();
-                    if (string.IsNullOrEmpty(title))
-                    {
-                        // leave the title as it is
-                        title = task.Title;
-                    }
-                    Console.Write($"Old description: =={task.Description}==, Please enter the new description of the task:");
-                    string description = Console.ReadLine();
-                    if (string.IsNullOrEmpty(description))
-                    {
-                        // leave the description as it is
-                        description = task.Description;
-                    }
-                    Console.WriteLine($"Person assigned: =={task.AssignedUser.Username}==, Please enter the new person to assign the task:");
-                    // get all the users from the database to choose which user to assign the task with their status if they have a task assigned or not
-                    List<User> users = db.Users.Include(u => u.Task).ToList();
-                    foreach (User user in users)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine($"Id: {user.Id}");
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"Username: {user.Username}");
-                        Console.WriteLine($"Role: {user.Role}");
-                        if (user.Task != null)
-                        {
-                            Console.WriteLine($"Task: {user.Task.Title}");
-                        }
-                        Console.ResetColor();
-                    }
-                    int assignedUserId = Convert.ToInt32(Console.ReadLine());
-                    User assignedUser = db.Users.Find(assignedUserId);
-                    if (assignedUser == null)
-                    {
-                        // leave the assigned user as it is
-                        assignedUser = task.AssignedUser;
-                    }
-                    task.Title = title;
-                    task.Description = description;
-                    task.AssignedUser = assignedUser;
-                    db.SaveChanges();
 
-                    string message = "Task updated successfully!";
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine(message);
+                int id = ValidationUtils.ReadValidInt("Enter the id of the task you want to update:", "Invalid input. Please enter a valid task id.");
+
+                var taskToUpdate = db.Tasks.Find(id);
+                if (taskToUpdate == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Task not found!");
+                    UpdateTask();
+                }
+
+                if (taskToUpdate.Status == Status.NotStarted || taskToUpdate.Status == Status.InProgress)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Task cannot be updated as it is not completed!");
                     Console.ResetColor();
-
-
+                    UpdateTask();
                 }
-                catch (Exception)
-                {
-                    throw;
-                }
-            }
-        }
 
-        // Delete Task - Done
-public void DeleteTask()
-{
-    using (var db = new TaskContext())
-    {
-        // View all tasks and allow user to choose which task to delete
-        List<Tasks> tasks = db.Tasks.ToList();
-        foreach (Tasks task in tasks)
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"Id: {task.Id}");
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Title: {task.Title}");
-            Console.WriteLine($"Description: {task.Description}");
-            Console.WriteLine($"Status: {task.Status}");
-            Console.ResetColor();
-        }
-        Console.WriteLine("Enter the id of the task you want to delete:");
-        if (!int.TryParse(Console.ReadLine(), out int id))
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Invalid input. Please enter a valid task id.");
-            Console.ResetColor();
-            return;
-        }
+                string newTitle = ValidationUtils.ReadNonEmptyString($"Old title: =={taskToUpdate.Title}==, Please enter the new title of the task:", "Title cannot be empty.");
+                string newDescription = ValidationUtils.ReadNonEmptyString($"Old description: =={taskToUpdate.Description}==, Please enter the new description of the task:", "Description cannot be empty.");
 
-        var taskToDelete = db.Tasks.Find(id);
-        if (taskToDelete == null)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Task not found!");
-            Console.ResetColor();
-            return;
-        }
-
-        if (taskToDelete.Status == Status.InProgress || taskToDelete.Status == Status.Completed)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Task cannot be deleted as it is in progress or completed!");
-            Console.ResetColor();
-            return;
-        }
-
-        db.Tasks.Remove(taskToDelete);
-        db.SaveChanges();
-        const string message = "Task deleted successfully!";
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine(message);
-        Console.ResetColor();
-        Console.ReadKey();
-    }
-}
-
-
-// Delete User - Done
-public void DeleteUser()
-        {
-            using (var db = new TaskContext())
-            {
-                // View all users and allow user to choose which user to delete and if the user has a task assigned, do not allow the user to delete the user
                 List<User> users = db.Users.Include(u => u.Task).ToList();
                 foreach (User user in users)
                 {
@@ -441,9 +346,98 @@ public void DeleteUser()
                     }
                     Console.ResetColor();
                 }
-                Console.Write("Enter the id of the user you want to delete:");
-                int id = Convert.ToInt32(Console.ReadLine());
-                User userToDelete = users.FirstOrDefault(u => u.Id == id);
+
+                int assignedUserId = ValidationUtils.ReadValidInt("Enter the user id to assign the task:", "Invalid input. Please enter a valid user id.");
+                User assignedUser = db.Users.Find(assignedUserId);
+                if (assignedUser == null)
+                {
+                    assignedUser = taskToUpdate.AssignedUser;
+                }
+
+                taskToUpdate.Title = newTitle;
+                taskToUpdate.Description = newDescription;
+                taskToUpdate.AssignedUser = assignedUser;
+                db.SaveChanges();
+
+                const string message = "Task updated successfully!";
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine(message);
+                Console.ResetColor();
+                Authentication.AdminMenu();
+            }
+        }
+
+
+        // Delete Task - Done - Validation
+        public void DeleteTask()
+        {
+            using (var db = new TaskContext())
+            {
+                List<Tasks> tasks = db.Tasks.ToList();
+                foreach (Tasks task in tasks)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"Id: {task.Id}");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"Title: {task.Title}");
+                    Console.WriteLine($"Description: {task.Description}");
+                    Console.WriteLine($"Status: {task.Status}");
+                    Console.ResetColor();
+                }
+
+                int id = ValidationUtils.ReadValidInt("Enter the id of the task you want to delete:", "Invalid input. Please enter a valid task id.");
+                var taskToDelete = db.Tasks.Find(id);
+                if (taskToDelete == null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Task not found!");
+                    Console.ResetColor();
+                    DeleteTask();
+                }
+                else if (taskToDelete.Status == Status.NotStarted || taskToDelete.Status == Status.InProgress)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Task cannot be deleted as it is not completed!");
+                    Console.ResetColor();
+                    DeleteTask();
+                }
+                else
+                {
+                    db.Tasks.Remove(taskToDelete);
+                    db.SaveChanges();
+                    const string message = "Task deleted successfully!";
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine(message);
+                    Console.ResetColor();
+                    // call the admin menu again
+                    Authentication.AdminMenu();
+                }
+            }
+        }
+
+
+        // Delete User - Done - Validation
+        public void DeleteUser()
+        {
+            using (var db = new TaskContext())
+            {
+                List<User> users = db.Users.Include(u => u.Task).ToList();
+                foreach (User user in users)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"Id: {user.Id}");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"Username: {user.Username}");
+                    Console.WriteLine($"Role: {user.Role}");
+                    if (user.Task != null)
+                    {
+                        Console.WriteLine($"Task: {user.Task.Title}");
+                    }
+                    Console.ResetColor();
+                }
+
+                int userId = ValidationUtils.ReadValidInt("Enter the id of the user you want to delete: ", "Invalid input. Please enter a valid user id.");
+                User userToDelete = users.FirstOrDefault(u => u.Id == userId);
 
                 if (userToDelete != null)
                 {
@@ -455,11 +449,13 @@ public void DeleteUser()
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine(message);
                         Console.ResetColor();
+                        // call the admin menu again
+                        Authentication.AdminMenu();
                     }
                     else
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("User cannot be deleted as they have task assigned to it!");
+                        Console.WriteLine("User cannot be deleted as they have a task assigned to it!");
                         Console.ResetColor();
                     }
                 }
@@ -468,10 +464,11 @@ public void DeleteUser()
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("User not found!");
                     Console.ResetColor();
+                    DeleteUser();
                 }
-
             }
         }
 
-}
+
+    }
 }

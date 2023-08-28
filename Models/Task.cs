@@ -20,10 +20,8 @@ namespace TaskMgmt.Models
         public string Title { get; set; }
         public string Description { get; set; }
         public Status Status { get; set; } = Status.NotStarted;
-
         public int ProjectId { get; set; }
         public Project Project { get; set; }
-
         public int AssignedUserId { get; set; }
         public User AssignedUser { get; set; }
 

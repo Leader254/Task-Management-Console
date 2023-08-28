@@ -17,7 +17,6 @@ namespace TaskMgmt.Models
         public string Username { get; set; } = String.Empty;
         public string Password { get; set; } = String.Empty;
         public Role Role { get; set; } = Role.User;
-
         public Tasks Task { get; set; }
     }
 }

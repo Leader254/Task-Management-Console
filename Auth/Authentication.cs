@@ -1,30 +1,28 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using TaskMgmt.Context;
 using TaskMgmt.Models;
 using TaskMgmt.Controllers;
+using TaskMgmt.Utils;
 
 namespace TaskMgmt.Auth
 {
-    // enum login or register
-    public enum LoginOrRegister
-    {
-        Login = 1,
-        Register = 2
-    }
     public class Authentication
     {
+        private enum LoginOrRegister
+        {
+            Login = 1,
+            Register = 2
+        }
         private static int loggedInUser;
-        // show options for login or register
+
         public void ShowOptions()
         {
             Console.WriteLine("1. Login");
             Console.WriteLine("2. Register");
             Console.Write("Enter your choice: ");
-            int choice = Convert.ToInt32(Console.ReadLine());
+            int choice = ValidationUtils.ReadValidInt("Enter your choice: ", "Invalid choice");
+
             if (choice == (int)LoginOrRegister.Login)
             {
                 LoginInput();
@@ -36,53 +34,69 @@ namespace TaskMgmt.Auth
             else
             {
                 Console.WriteLine("Invalid choice");
+                ShowOptions();
             }
         }
-        // input fields for register
+
         public void RegisterInput()
         {
-            Console.Write("Enter username: ");
-            string username = Console.ReadLine();
-            Console.Write("Enter password: ");
-            string password = Console.ReadLine();
-            Console.WriteLine("Enter role: ");
+            string username = ValidationUtils.ReadNonEmptyString("Enter username: ", "Username cannot be empty.");
+            string password = ValidationUtils.ReadNonEmptyString("Enter password: ", "Password cannot be empty.");
 
+            Console.WriteLine("Enter role: ");
             foreach (var roleOption in Enum.GetValues(typeof(Role)))
             {
                 Console.WriteLine($"{(int)roleOption}. {roleOption}");
             }
+            string selectedRole = ValidationUtils.ReadNonEmptyString("Select role by entering the corresponding number: ", "Invalid role selection.");
 
-            string selectedRole = Console.ReadLine();
-            Register(username, password, selectedRole);
+            // convert the username to lowercase
+            string convertedUsername = username.ToLower();
+            // check if the username already exists
+            using (var db = new TaskContext())
+            {
+                var user = db.Users.FirstOrDefault(u => u.Username == convertedUsername);
+                if (user != null)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Username already exists");
+                    Console.ResetColor();
+                    RegisterInput();
+                }
+                else
+                {
+                    Register(convertedUsername, password, selectedRole);
+                }
+            }
         }
 
-        // input fields for login
         public void LoginInput()
         {
-            Console.Write("Enter username: ");
-            string username = Console.ReadLine();
-            Console.Write("Enter password: ");
-            string password = Console.ReadLine();
+            string username = ValidationUtils.ReadNonEmptyString("Enter username: ", "Username cannot be empty.");
+            string password = ValidationUtils.ReadNonEmptyString("Enter password: ", "Password cannot be empty.");
             bool isLogin = Login(username, password);
-
         }
-        // Register method
-        public static void Register(string username, string password, string roleName)
+
+
+        public static void Register(string convertedUsername, string password, string roleName)
         {
             using (var db = new TaskContext())
             {
                 var user = new User
                 {
-                    Username = username,
+                    Username = convertedUsername,
                     Password = password,
                     Role = (Role)Enum.Parse(typeof(Role), roleName)
                 };
+                // success message
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("User registered successfully!");
+                Console.ResetColor();
                 db.Users.Add(user);
                 db.SaveChanges();
             }
         }
 
-        // Login method
         public static bool Login(string username, string password)
         {
             using (var db = new TaskContext())
@@ -115,7 +129,6 @@ namespace TaskMgmt.Auth
             }
         }
 
-        // Admin menu
         public static void AdminMenu()
         {
             Console.WriteLine("1. Create A Project");
@@ -127,7 +140,7 @@ namespace TaskMgmt.Auth
             Console.WriteLine("7. Delete task");
             Console.WriteLine("8. Delete user");
             Console.Write("Enter your choice: ");
-            int choice = Convert.ToInt32(Console.ReadLine());
+            int choice = ValidationUtils.ReadValidInt("Enter your choice: ", "Invalid choice");
 
             ProjectsCRUD projectsCRUD = new ProjectsCRUD();
             switch (choice)
@@ -157,19 +170,20 @@ namespace TaskMgmt.Auth
                     projectsCRUD.DeleteUser();
                     break;
                 default:
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Invalid choice");
+                    Console.ResetColor();
+                    AdminMenu();
                     break;
             }
-
         }
 
-        // user menu
         public static void UserMenu()
         {
             Console.WriteLine("1. View task assigned to you");
             Console.WriteLine("2. Update task status");
             Console.Write("Enter your choice: ");
-            int choice = Convert.ToInt32(Console.ReadLine());
+            int choice = ValidationUtils.ReadValidInt("Enter your choice: ", "Invalid choice");
 
             UserOptions userOptions = new UserOptions();
             switch (choice)
