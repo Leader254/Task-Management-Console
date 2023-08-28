@@ -8,9 +8,11 @@ namespace TaskMgmt.Controllers
 {
     public class ProjectsCRUD
     {
+        private int createdProjectId = -1;
         // Create Project - Done - Validation
         public void CreateProject()
         {
+
             using (var db = new TaskContext())
             {
                 string name = "";
@@ -50,6 +52,21 @@ namespace TaskMgmt.Controllers
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine(message);
                 Console.ResetColor();
+                Console.WriteLine("Want To Create Tasks Under This Project? (y/n)");
+                // take the id of the project and pass it to the create task method
+                string choice = Console.ReadLine();
+                if (choice == "y" || choice == "Y" || choice == "yes" || choice == "Yes")
+                {
+                    createdProjectId = project.Id;
+                    CreateTask();
+                }
+                else
+                {
+                    Console.WriteLine("Invalid choice");
+                    // call the admin menu again
+                    Authentication.AdminMenu();
+                }
+
             }
         }
 
@@ -187,8 +204,15 @@ namespace TaskMgmt.Controllers
                     Console.ResetColor();
                 }
 
-                int projectId = ValidationUtils.ReadValidInt("Enter the project id under which you want to create the task: ", "Invalid input. Please enter a valid project id.");
-
+                int projectId = -1;
+                if (createdProjectId != -1)
+                {
+                    projectId = createdProjectId;
+                }
+                else
+                {
+                    projectId = ValidationUtils.ReadValidInt("Enter the project id under which you want to create the task: ", "Invalid input. Please enter a valid project id.");
+                }
                 Project projectToAssign = db.Projects.Include(p => p.Tasks).FirstOrDefault(p => p.Id == projectId);
                 if (projectToAssign == null)
                 {
