@@ -15,7 +15,7 @@ namespace TaskMgmt.Context
         public DbSet<User> Users { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=localhost; Database=TaskMgmt; User Id=sa; Password=Samuel@sql; Encrypt=False; TrustServerCertificate=True");
+            optionsBuilder.UseSqlServer("Server=localhost; Database=MgntDB; User Id=sa; Password=1234; Encrypt=False; TrustServerCertificate=True");
         }
 
     }
